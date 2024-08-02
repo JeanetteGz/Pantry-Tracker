@@ -1,13 +1,24 @@
 "use client";
-import { Box, Button, Modal, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Modal, Stack, TextField, Typography, Card, CardContent, CardActions } from "@mui/material";
 import { collection, query, getDocs, setDoc, getDoc, deleteDoc, doc } from "firebase/firestore";
 import { firestore } from "./firebase";
 import { useState, useEffect } from "react";
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
-export default function Home() {
+// Mock function to get recipe suggestions
+const getRecipeSuggestions = async (inventory) => {
+  // Replace this mock implementation with actual logic
+  if (inventory.length === 0) return 'No ingredients available for suggestions.';
+  return 'Based on your inventory, here are some recipe suggestions: Pasta, Salad, Smoothie.';
+};
+
+export default function Pantry() {
   const [inventory, setInventory] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [recipeSuggestions, setRecipeSuggestions] = useState('');
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -52,12 +63,27 @@ export default function Home() {
     await updateInventory();
   };
 
+  const getSuggestions = async () => {
+    try {
+      // Call the mock or actual implementation of getRecipeSuggestions
+      const suggestions = await getRecipeSuggestions(inventory);
+      setRecipeSuggestions(suggestions);
+    } catch (error) {
+      console.error('Error fetching recipe suggestions:', error);
+      setRecipeSuggestions('Error fetching suggestions.');
+    }
+  };
+
   useEffect(() => {
     updateInventory();
   }, []);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const filteredInventory = inventory.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Box
@@ -68,6 +94,7 @@ export default function Home() {
       flexDirection="column"
       alignItems="center"
       gap={2}
+      sx={{ bgcolor: '#f5f5f5' }} // Light grey background
     >
       <Modal open={open} onClose={handleClose}>
         <Box
@@ -75,101 +102,140 @@ export default function Home() {
           top="50%"
           left="50%"
           width={400}
-          bgcolor="white"
-          border="2px solid #000"
-          boxShadow={24}
+          borderRadius="12px"
+          boxShadow="0px 8px 16px rgba(0, 0, 0, 0.2)"
           padding={4}
           display="flex"
           flexDirection="column"
           gap={3}
           sx={{ transform: 'translate(-50%, -50%)' }}
         >
-          <Typography variant="h6">Add Item</Typography>
+          <Typography variant="h6" fontFamily="Roboto, sans-serif" fontWeight={600}>Add Item</Typography>
           <Stack width="100%" direction="row" spacing={2}>
             <TextField
-              variant='outlined'
+              variant="outlined"
               fullWidth
               value={itemName}
-              onChange={(e) => {
-                setItemName(e.target.value)
-              }}
+              onChange={(e) => setItemName(e.target.value)}
+              InputProps={{ style: { borderRadius: '8px' } }}
             />
-            <Button variant="outlined"
+            <Button
+              variant="contained"
+              color="primary"
               onClick={() => {
                 addItem(itemName);
                 setItemName('');
-                handleClose()
+                handleClose();
               }}
+              sx={{ borderRadius: '8px', bgcolor: '#7765E3', '&:hover': { bgcolor: '#6a4fdd' } }}
             >
               Add
             </Button>
           </Stack>
         </Box>
       </Modal>
-      <Button variant = "contained" 
-      onClick={() => {
-        handleOpen()
-      }}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleOpen}
+        sx={{
+          borderRadius: '12px',
+          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+          bgcolor: '#3b60e4',
+          '&:hover': {
+            bgcolor: '#6a4fdd'
+          }
+        }}
       >
         Add New Item
       </Button>
-      <Box border="1px solid black">
+      <TextField
+        variant="outlined"
+        placeholder="Search items"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{
+          width: '300px', // Set the width to a specific value
+          borderRadius: '8px',
+          marginBottom: '16px'
+        }}
+      />
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={getSuggestions}
+        sx={{
+          borderRadius: '12px',
+          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+          bgcolor: '#FF8C00',
+          '&:hover': {
+            bgcolor: '#FFA500'
+          },
+          marginBottom: '16px'
+        }}
+      >
+        Get Recipe Suggestions
+      </Button>
+      <Typography variant="h6" color="black" fontFamily="Roboto, sans-serif" fontWeight={600}>
+        {recipeSuggestions || 'No suggestions available.'}
+      </Typography>
+
+      <Box
+        width="800px"
+        sx={{ 
+          maxHeight: '80vh', 
+          overflowY: 'auto', 
+          backgroundColor: '#3b3b3b', // Dark grey background
+          borderRadius: '12px',
+          padding: 2
+        }}
+      >
         <Box
-        width = "800px"
-        height="100px"
-        bgcolor="#ADD8E6"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
+          width="100%"
+          height="100px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          borderRadius="12px"
+          mb={2}
         >
-          <Typography variant="h2" color="#333">
+          <Typography variant="h2" color="white" fontFamily="Roboto, sans-serif" fontWeight={700}>
             Inventory Items
           </Typography>
         </Box>
-      <Stack width="800px" height="300px" spacing={2} overflow="auto">
-      {inventory.map(({name, quantity}) => (
-          <Box key={name} 
-          width="100%" 
-          minHeight="150px" 
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          bgcolor="#f0f0f0"
-          padding={5}
-          >
-            <Typography 
-            variant="h3" 
-            color="#333" 
-            textAlign="center"
-            >
-              {name.charAt(0).toUpperCase() + name.slice(1)}
-            </Typography>
-            <Typography 
-            variant="h3" 
-            color="#333" 
-            textAlign="center"
-            >
-              {quantity}
-            </Typography>
-            <Stack direction="row" spacing={2}>
-            <Button variant="contained" onClick={() =>{
-              addItem(name)
-            }}
-            >
-              Add
-            </Button>
-            <Button variant="contained" onClick={() =>{
-              removeItem(name)
-            }}
-            >
-              Remove
-            </Button>
-            </Stack>
-          </Box>
-      ))}
-      </Stack>
-    </Box>
+        <Stack width="100%" spacing={2}>
+          {filteredInventory.map(({ name, quantity }) => (
+            <Card key={name} sx={{ width: '100%', boxShadow: 3, borderRadius: '12px', bgcolor: '#4f4f4f' }}>
+              <CardContent>
+                <Typography variant="h5" color="white" fontWeight={600}>
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </Typography>
+                <Typography variant="h6" color="white">
+                  Quantity: {quantity}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  sx={{ bgcolor: '#7765E3', '&:hover': { bgcolor: '#6a4fdd' }, borderRadius: '8px' }}
+                  startIcon={<AddIcon />}
+                  onClick={() => addItem(name)}
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ bgcolor: '#E76D83', '&:hover': { bgcolor: '#6a4fdd' }, borderRadius: '8px' }}
+                  startIcon={<RemoveIcon />}
+                  onClick={() => removeItem(name)}
+                >
+                  Remove
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
+        </Stack>
+      </Box>
     </Box>
   );
 }
-
