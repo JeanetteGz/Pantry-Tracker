@@ -18,8 +18,7 @@ export default function LandingPage() {
       alignItems="center"
       justifyContent="center"
       sx={{ 
-        bgcolor: '#2e2e2e', 
-        backgroundImage: 'url(/images/food.jpg)', 
+        bgcolor: '#2e2e2e',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: 4,
