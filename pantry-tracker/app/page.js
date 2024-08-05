@@ -1,6 +1,6 @@
 "use client";
 import { Box, Button, Typography, Grid, Card, CardContent } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 export default function LandingPage() {
   const router = useRouter();
