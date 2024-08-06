@@ -3,7 +3,9 @@
   padding: 0;
   margin: 0;
 }
-
+body {
+  font-family: Arial, sans-serif; /* Fallback system fonts */
+}
 ::-webkit-scrollbar {
   width: 12px;
 }
