@@ -1,12 +1,14 @@
 "use client";
-import { Box, Button, Typography, Grid, Card, CardContent } from "@mui/material";
-import { useRouter } from "next/router";
 
-export default function LandingPage() {
+import { useRouter } from "next/router";
+import { Box, Button, Typography, Grid, Card, CardContent } from "@mui/material";
+
+
+export default function Home() {
   const router = useRouter();
 
   const handleGetStarted = () => {
-    router.push('/pantry'); // Navigate to the main app page
+    router.push('/pantry');
   };
 
   return (
