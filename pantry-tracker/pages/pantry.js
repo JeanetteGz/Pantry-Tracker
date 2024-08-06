@@ -1,7 +1,7 @@
 "use client";
 import { Box, Button, Modal, Stack, TextField, Typography, Card, CardContent, CardActions, Grid } from "@mui/material";
 import { collection, query, getDocs, setDoc, getDoc, deleteDoc, doc } from "firebase/firestore";
-import { firestore } from "../../firebase";
+import { firestore } from "../firebase";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import AddIcon from '@mui/icons-material/Add';
